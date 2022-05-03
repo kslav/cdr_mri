@@ -26,8 +26,8 @@ https://utexas.box.com/s/ynm4g740x3rrtiuzdsqma9bweqmonk6v
 
 There are 8 available datasets in .h5 format: 4 raw k-space datasets and 4 simulated datasets from synthesizing the forward model and thus eliminating model error. There are four acceleration factors, R, available for testing: R = 8, 12, 18, 36. 
 
-Simulated dataset file names are formatted as follows: dataset_VFA_Sub8_brain_FA4_20_norm1000_noise_simData_bartMask_acc['R'].h5
-Raw dataset file names are formatted as follows:       dataset_VFA_Sub8_brain_FA4_20_norm1000_noisewhitened_rawData_bartMask_acc['R'].h5
+Simulated dataset file names are formatted as follows: `dataset_VFA_Sub8_brain_FA4_20_norm1000_noise_simData_bartMask_acc['R'].h5`
+Raw dataset file names are formatted as follows:       `dataset_VFA_Sub8_brain_FA4_20_norm1000_noisewhitened_rawData_bartMask_acc['R'].h5`
 
 The user may replace 'R' with any one of the four acceleration factors available.
 
