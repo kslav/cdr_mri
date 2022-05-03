@@ -34,7 +34,7 @@ The user may replace 'R' with any one of the four acceleration factors available
 ## Run an example reconstruction
 
 
-Here we will reconstruct images from the raw data of a representative subject, whose fully-sampled raw data has been retrospectively accelerated by a factor R. All config files for this subject can be found under /configs, and the data in h5py format is available for download at the link above under "Test dataset".
+Here we will reconstruct images from the raw data of a representative subject, whose fully-sampled raw data has been retrospectively accelerated by a factor R. All config files for this subject can be found under /configs and can be edited accordingly to ensure the correct file paths to the dictionary and dataset are used on the user's local machine. The data in h5py format is available for download at the link above under "Test dataset". This code is adapted to run on a GPU.
 
 To run CD+r on reconstructing the raw dataset retrospectively accelerated by a factor of R = 36, one can run the following command in terminal:
 
@@ -52,6 +52,6 @@ python main.py --config Sub8_configs/Sub8_brain_VFA_raw_T1reg_sup_R36.json
 Tensorboard is the ideal way to view the training progress of the experiments in a browser window. Log files are saved under `cdr_mri/logs`
 and can then be opened using the following command:
 ```
-tensorboard --logdir logs/ --port [port number]
+tensorboard --logdir logs/[log file name] --port [port number]
 ```
 
