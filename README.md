@@ -3,25 +3,27 @@ Package for training deep inverse problems in Python by Jonathan I. Tamir, repo 
 
 The manuscript associated with this work can be at arxiv:xxxx and has been submitted to Magnetic Resonance in Medicine for review. 
 
-## Example Usage of DeepInPy:
-- Example for running a single experiment:
-```bash
-python main.py --config configs/example.json
-```
 
 ## Purpose:
 The purpose of this project is to apply physics-based regulization in training a modified ConvDecoder architecture (G(w))[Darestani et al. 2021. arXiv:2007.02471v3] for accelerated dynamic MRI. 
 
 The proposed regularization term provides an early stopping condition that does not require access to ground truth data. This allows for automated early stoping that yields reconstructed images and corresponding quantitative parameter maps at a high resolution. The cost function for this training is defined in the following figure.
 
-<img src="docs/images/costfunction.png" width="256">
+<img src="docs/images/costfunction.png" width="500">
 
 
 ### Test dataset
-https://utexas.box.com/s/f1rpp5wvpzqorthxg98rbpszc5816c2f
+https://utexas.box.com/s/ynm4g740x3rrtiuzdsqma9bweqmonk6v
 
-[sigpy]: https://github.com/mikgroup/sigpy
-[torchkbnufft]: https://github.com/mmuckley/torchkbnufft
-[pytl]: https://github.com/PyTorchLightning/pytorch-lightning/
-[pytorch]: https://pytorch.org/
-[testtube]: https://github.com/williamFalcon/test-tube
+## Run an example reconstruction
+
+Here we will reconstruct images from the raw data of a representative subject, whose fully-sampled raw data has been retrospectively accelerated by a factor of 12. All config files for all three subjects can be found under /configs.
+
+
+
+## Example Usage of DeepInPy:
+- To reconstruct images from the retrospectively accelerated raw data with physics-based regularization turned on, we can run the following command:
+```bash
+python main.py --config Sub8_brain_VFA_raw_noreg_sup_R12.json
+```
+
