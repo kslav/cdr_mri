@@ -1,6 +1,6 @@
 {
 	"random_seed": 723,
-	"data_file": "/home/ubuntu/kalina/data/dataset_VFA_Sub8_brain_FA4_20_norm1000_noisewhitened_rawData_bartMask_acc36.h5",
+	"data_file": "~/cdr-mri_master/data/dataset_VFA_Sub8_brain_FA4_20_norm1000_noisewhitened_rawData_bartMask_acc36.h5",
 	"shuffle": false,
 	"num_data_sets": 1,
 	"fully_sampled": false,
@@ -39,8 +39,8 @@
     "lr_scheduler": -1,
 	"num_spatial_dimensions": 2,
 	"save_every_N_epochs": 500,
-	"logdir": "/home/ubuntu/kalina/Code/deepinpy_private_201208/logs_Sub8_raw_R36",
+	"logdir": "~/cdr-mri_master/logs/logs_Sub8_raw_R36",
 	"do_t1_mapping": false,
 	"save_img": true,
-	"dictdir": "/home/ubuntu/kalina/Code/dictionaries"
+	"dictdir": "~/cdr-mri_master/dictionary_files/dict_T1mapping_TR_6_FAs_4-20_2k.pt"
 }
