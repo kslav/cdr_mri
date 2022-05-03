@@ -47,4 +47,11 @@ For running ConvDecoder without regularization, the following modification is ma
 python main.py --config Sub8_configs/Sub8_brain_VFA_raw_T1reg_sup_R36.json
 ```
 
+## Visualizing reconstruction outputs
+
+Tensorboard is the ideal way to view the training progress of the experiments in a browser window. Log files are saved under `cdr_mri/logs`
+and can then be opened using the following command:
+
+tensorboard --logdir logs/ --port [port number]
+
 
