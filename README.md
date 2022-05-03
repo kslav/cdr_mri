@@ -1,76 +1,21 @@
-# DeepInPy: Deep Inverse Problems for Python
-Package for training deep inverse problems in Python
+# ConvDecoder with Physics based regularization, implemented using DeepInPy.
+Package for training deep inverse problems in Python by Jonathan I. Tamir, repo located at https://github.com/utcsilab/deepinpy.git. We strongly encourage the user to review the original DeepInPy repository and the instructions provided for its use. The [getting_started.md](https://github.com/kslav/cdr_mri/tree/master/docs/getting_started.md) document is borrowed from the DeepInPy repo and explains data formatting for compatibility with DeepInPy. 
 
-This project is a __Work In Progress!__ We are looking for volunteers! Please see the issues page for open problems.
+The manuscript associated with this work can be at arxiv:xxxx and has been submitted to Magnetic Resonance in Medicine for review. 
 
-[Getting Started](docs/getting_started.md)
-
-## Example Usage:
+## Example Usage of DeepInPy:
 - Example for running a single experiment:
 ```bash
 python main.py --config configs/example.json
 ```
-- Example for running hyperparamter optimization experiments
-```bash
-python main.py --config configs/example_hyperopt.json
-```
 
 ## Purpose:
-The purpose of this project is to simplify applied research for deep inverse problems, with specific focus on magnetic resonance imaging (MRI). Deep inverse problems aim to invert a signal model using a combination of deep learning and iterative algorithms, given a dataset of prior knowledge. 
+The purpose of this project is to apply physics-based regulization in training a modified ConvDecoder architecture (G(w))[Darestani et al. 2021. arXiv:2007.02471v3] for accelerated dynamic MRI. 
 
-Many approaches to deep inverse reconstructions follow a similar paradigm:
-- Define a signal model, e.g. Multi-channel MRI  
-- Define a reconstruction algorithm, consisting of a mix of model-based components and learning-based components  
-- Load a dataset for training, typically including ground-truth measurements  
-- Train the model using the data  
-- Visualize the results  
-- Search for model hyperparameters  
+The proposed regularization term provides an early stopping condition that does not require access to ground truth data. This allows for automated early stoping that yields reconstructed images and corresponding quantitative parameter maps at a high resolution. The cost function for this training is defined in the following figure.
 
-To perform this work, a large amount of skeleton code is often necessary, for example to define training loops appropriately. Recently, a number of high-level pacakges aim to streamline this work. In particular, [Pytorch Lightning][pytl] operates as a light layer above PyTorch, enabling researchers to focus on model-building.
+<img src="docs/images/costfunction.png" width="256">
 
-This package aims to bring the simplicity of PyTorch Lightning to the inverse problem community by further streamlining the above processes, freeing the user to focus on the innovative components while still easily following best practices for training.
-
-
-### Functionality
-DeepInPy combines [PyTorch][pytorch], [PyTorch Lightning][pytl], and [Test Tube][testtube] to support rapid prototyping of deep inverse problems. Among its features, DeepInPy incorporates the following functionality:
-- Modular reconstruction block design,  
-- Multi-GPU training across multiple machines,  
-- TensorBoard training visualization,  
-- Hyperparameter logging and search  
-
-
-At its core, DeepInPy provides an abstract interface for a Recon object, which transforms a data variable `y` to a reconstruction variable `x` with forward model `A` and reconstruction parameters `θ`
-
-Recon objects are composed of a sequence of modular blocks, including System blocks (e.g. multi-channel MRI), Model blocks (e.g. CNNs), and Optimization blocks (e.g. Conjugate Gradient). Using this interface, new reconstructions can be built that incorporate multiple types of blocks, including data consistency, loops (unrolls), and neural networks.
-
-<img src="docs/images/blocks.png" width="256">
-
-
-To help with training and hyperparameter search, DeepInPy visualizes typical training results using TensorBoard. This is enabled through [Test Tube's][testtube] SummaryWriter, which saves all parameter and image information into the `logs` directory:
-```bash
-tensorboard --logdir logs --port 1234 --samples_per_plugin images=500
-```
-<img src="docs/images/tb_hyperopt.png" width="1024">
-
-DeepInPy can leverage packages such as [SigPy][sigpy] and [Torch KB NUFFT][torchkbnufft] to create the (non-Cartesian) forward models and other signal processing functions. 
-
-## Installation
-
-```bash
-conda install -c pytorch pytorch 
-pip install -r requirements.txt
-```
-
-### Optional dependencies
-[SigPy][sigpy]:
-```bash
-pip install sigpy
-```
-
-[Torch KB NUFFT][torchkbnufft]:
-```bash
-pip install torchkbnufft
-```
 
 ### Test dataset
 https://utexas.box.com/s/f1rpp5wvpzqorthxg98rbpszc5816c2f
