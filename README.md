@@ -11,7 +11,7 @@ The purpose of this project is to apply physics-based regulization in training a
 
 The proposed regularization term provides an early stopping condition that does not require access to ground truth data. This allows for automated early stoping that yields reconstructed images and corresponding quantitative parameter maps at a high resolution. The proposed pipeline, along with cost function, are defined in the following figure.
 
-<img src="docs/images/Figure1.tiff" width="500">
+<img src="docs/images/Figure1.tiff" width="800">
 
 ## Installation
 
