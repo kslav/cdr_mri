@@ -17,7 +17,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0, 1, 2, 3"
 
 import time
 
-from deepinpy.recons import CGSenseRecon, MoDLRecon, ResNetRecon, DeepBasisPursuitRecon, CSDIPRecon
+from deepinpy.recons import CGSenseRecon, MoDLRecon, ResNetRecon, DeepBasisPursuitRecon, CSDIPRecon, RelaxRecon
 
 import torch
 torch.backends.cudnn.enabled = True
@@ -55,6 +55,8 @@ def main_train(args, gpu_ids=None):
         MyRecon = DeepBasisPursuitRecon
     elif args.recon == 'csdip':
         MyRecon = CSDIPRecon
+    elif args.recon == 'relax':
+        MyRecon = RelaxRecon
 
     M = MyRecon(args)
 
@@ -88,7 +90,7 @@ if __name__ == '__main__':
 
     parser = HyperOptArgumentParser(usage=usage_str, description=description_str, formatter_class=argparse.ArgumentDefaultsHelpFormatter, strategy='grid_search')
 
-    parser.opt_list('--step', action='store', dest='step', type=float, tunable=True, options=[0.01], help='number of latent channels', default=0.0001)
+    parser.opt_list('--step', action='store', dest='step', type=float, tunable=True, options=[0.1,0.01,0.001,0.0002], help='number of latent channels', default=0.0001)
     parser.opt_list('--latent_channels', action='store', dest='latent_channels', type=int, tunable=False, options=[64, 96, 128], help='number of latent channels', default=64)
     parser.opt_list('--num_blocks', action='store', dest='num_blocks', type=int, tunable=False, options=[4, 6, 8], help='number of ResNetBlocks', default=6)
     parser.opt_list('--z_dim', action='store', dest='z_dim', type=int, tunable=False, options=[2,4,8], help='number of z_dim channels', default=64)
@@ -97,9 +99,9 @@ if __name__ == '__main__':
     parser.opt_list('--continuation_scale2', action='store', type=int,  dest='continuation_scale2', tunable=False,options=[0.1, 0.9, 0.95],help='how much to scale mu2 by', default=1)
     parser.opt_list('--continuation_rate', action='store', type=int,  dest='continuation_rate', tunable=False,options=[5000],help='when to update mu1 and mu2', default=10000)
 
-    parser.opt_list('--mu1', action='store', type=int,  dest='mu1', tunable=True,options=[1],help='reg_rate for model consistency', default=0.5) #[0.05, 0.1, 0.5, 1]
+    parser.opt_list('--mu1', action='store', type=int,  dest='mu1', tunable=False,options=[0.1],help='reg_rate for model consistency', default=0.1) #[0.05, 0.1, 0.5, 1]
     parser.opt_list('--mu2', action='store', type=int,  dest='mu2', tunable=False,options=[0],help='reg_rate for model change being gradual', default=0)
-    parser.opt_list('--reg_update_freq', action='store', type=int, dest='reg_update_freq', tunable=True,options=[5],help='frequency with which to update model x_n', default=1)
+    parser.opt_list('--reg_update_freq', action='store', type=int, dest='reg_update_freq', tunable=False,options=[5],help='frequency with which to update model x_n', default=1)
 
     #parser.opt_range('--reg_rate', action='store',type=float, dest='reg_rate', help='set regularization rate', default=1,tunable=False, nb_samples=16, low=.001, high=5)
     #parser.opt_list('--reg_length', action='store', dest='reg_length', type=int, tunable=False, options=[200, 500, 1000,1500, 2000], help='number of z_dim channels', default=500)
@@ -149,11 +151,12 @@ if __name__ == '__main__':
     parser.add_argument('--save_every_N_epochs', action='store', type=int,  dest='save_every_N_epochs', help='save images every N epochs', default=1)
     parser.add_argument('--num_spatial_dimensions', action='store', dest='num_spatial_dimensions', type=int, help='num of spatial dimensions in ksp.shape, e.g. (..., Nx, Ny, Nz, ...) means 3 spatial dimensions. Currently 2D or 3D is supported', default=2)
     parser.add_argument('--do_t1_mapping', action='store_true', dest='do_t1_mapping', help='perform T1 mapping using loaded dictionary', default=False)
-    parser.add_argument('--do_pk_mapping', action='store_true', dest='do_pk_mapping', help='perform T1 mapping using loaded dictionary', default=False)
+    parser.add_argument('--do_warmstart', action='store_true', dest='do_warmstart', help='load preliminary weights rather than random ones', default=False)
     parser.add_argument('--save_img', action='store_true', dest='save_img', help='toggle on/off whether to save outputted images', default=False)
     parser.json_config('--config', default=None)
     parser.add_argument('--dictdir', action='store', dest='dictdir', type=str, help='points to dictionary files', default=None)
-    parser.add_argument('--save_img_path', action='store', dest='save_img_path', type=str, help='points to where to sae images. default is save_path', default=None)
+    parser.add_argument('--save_img_path', action='store', dest='save_img_path', type=str, help='points to where to save images. default is save_path', default=None)
+    parser.add_argument('--state_dict_path', action='store', dest='state_dict_path', type=str, help='points to the state_dict file you want to load weights from for warm start', default=None)
 
     args = parser.parse_args()
 

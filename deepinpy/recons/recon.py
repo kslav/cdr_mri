@@ -60,8 +60,6 @@ class Recon(pl.LightningModule):
             self.loss_fun = self._abs_loss_fun
         elif self.hparams.do_t1_mapping:
             self.loss_fun = self._t1_mapping_loss_fun_v3
-        elif self.hparams.do_pk_mapping:
-            self.loss_fun = self._pk_mapping_loss_fun
         else:
             self.loss_fun = self._loss_fun
         if self.hparams.save_img_path == None:
@@ -195,9 +193,6 @@ class Recon(pl.LightningModule):
             #load the dictionary (D), scale factors (sc_list), and t1_list
             #self.D instead
             if self.current_epoch == 0:
-                #self.model_dict = (torch.load("/home/kalina/Code/deepinpy_private_201208/deepinpy/utils/dict_T1mapping_TR_6_FAs_2-20_num10.pt")).to(x_hat.device) #send to same device as x_hat
-                #self.sc_list = (torch.load("/home/kalina/Code/deepinpy_private_201208/deepinpy/utils/sc_T1mapping_TR_6_FAs_2-20_num10.pt")).to(x_hat.device) # repeat same steps as D
-                #self.t1_list = (torch.load("/home/kalina/Code/deepinpy_private_201208/deepinpy/utils/t1_list_1_4000_10k.pt")).to(x_hat.device) # see above
                 self.model_dict = (torch.load("{}/dict_T1mapping_TR_6_FAs_4-20_2k.pt".format(self.hparams.dictdir))).to(x_hat.device) #send to same device as x_hat
                 self.sc_list    = (torch.load("{}/sc_T1mapping_TR_6_FAs_4-20_2k.pt".format(self.hparams.dictdir))).to(x_hat.device) # repeat same steps as D
                 self.t1_list    = (torch.load("{}/t1_list_50_4000_2k.pt".format(self.hparams.dictdir))).to(x_hat.device) # see above
@@ -389,47 +384,50 @@ class Recon(pl.LightningModule):
                     _x_gt = utils.t2n(imgs[_idx,...])
                     _x_adj = utils.t2n(x_adj[_idx,...])
                     _x_m = self.x_m.cpu().numpy()
+                    #_out_net = self.out_net.detach().cpu().numpy()
+
                     if self.hparams.self_supervised:
                         print("applying StS operation to x_hat...")
                         x_hat_StS = maps_adj(maps_forw(x_hat, maps),maps)
                         _x_hat = utils.t2n(x_hat_StS[_idx,...])
                         print("self.hparams.save_img = ", self.hparams.save_img)
-                        if self.hparams.save_img:
+                        if self.hparams.save_img: #and self.current_epoch > 1500 and self.current_epoch < 2200:
 
                             #np.save("/home/kalina/images/Sub5_raw_images/{0}_{1}_x_gt.npy".format(self.hparams.name,self.hparams.version), _x_gt)
                             #np.save("{0}/x_hat.npy".format(self.hparams.save_path), _x_hat)
                             #np.save("/home/kalina/images/Sub5_raw_images/{0}_version{1}_epoch{2}_x_hat.npy".format(self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _x_hat)
                             #np.save("/home/kalina/images/Sub5_raw_images/{0}_version{1}_epoch{2}_x_m.npy".format(self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _x_hat)
                             np.save("{0}/{1}_version{2}_epoch{3}_x_hat.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _x_hat)
-                            np.save("{0}/{1}_version{2}_epoch{3}_x_m.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _x_hat)
+                            np.save("{0}/{1}_version{2}_epoch{3}_x_m.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _x_m)
+                            #np.save("{0}/{1}_version{2}_epoch{3}_out_net.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _out_net)
 
                     if len(_x_hat.shape) > 2:
                         #_d = tuple(range(len(_x_hat.shape)-2))
                         _d = _x_hat.shape[0]
                         _x_gt_dyn = np.abs(_x_gt)
-                        #myim = torch.tensor(np.stack((_x_hat_fa1, _x_hat_fa2, _x_hat_fa3,_x_hat_fa4), axis=0))[:, None, ...] 
-                        myim = torch.tensor(np.abs(_x_hat))[:, None, ...] 
+                        _x_hat_dyn = np.abs(_x_hat)
+                        # myim = torch.tensor(np.stack((_x_hat_fa1, _x_hat_fa2, _x_hat_fa3,_x_hat_fa4), axis=0))[:, None, ...] 
+                        # grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
+                        # self.logger.experiment.add_image('2_train_prediction_dyn', grid, self.current_epoch)
+
+                        myim = torch.tensor(_x_hat_dyn)[:, None, ...] 
                         grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
-                        self.logger.experiment.add_image('4_train_prediction_dyn', grid, self.current_epoch)
+                        self.logger.experiment.add_image('2_train_prediction', grid, self.current_epoch)
 
-                        mymod = self.x_m[:,None,...]
-                        grid = make_grid(mymod, scale_each=True, normalize=True, nrow=_d, pad_value=10)
-                        self.logger.experiment.add_image('7_phys_model_dyn', grid, self.current_epoch)
+                        #mymod = self.x_m[:,None,...]
+                        #grid = make_grid(mymod, scale_each=True, normalize=True, nrow=_d, pad_value=10)
+                        #self.logger.experiment.add_image('7_phys_model_dyn', grid, self.current_epoch)
+
+                        #myt1 = self.T1map
+                        #grid = make_grid(myt1, scale_each=True, normalize=True, nrow=_d, pad_value=10)
+                        #self.logger.experiment.add_image('3_t1map', grid, self.current_epoch)
 
 
-
-                        #myim = torch.tensor(np.stack((_x_gt_fa1, _x_gt_fa2, _x_gt_fa3,_x_gt_fa4), axis=0))[:, None, ...] 
-                        #myim = torch.tensor(_x_gt_img_all)[:, None, ...] 
-                        #grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
-                        #self.logger.experiment.add_image('5_ground_truth_dyn', grid, self.current_epoch)
 
                         #_x_hat_rss = np.linalg.norm(_x_hat, axis=_d)
                         #_x_gt_rss = np.linalg.norm(_x_gt, axis=_d)
                         #_x_adj_rss = np.linalg.norm(_x_adj, axis=_d)
 
-                        #myim = torch.tensor(np.stack((_x_adj_rss, _x_hat_rss, _x_gt_rss), axis=0))[:, None, ...] 
-                        #grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
-                        #self.logger.experiment.add_image('3_train_prediction_rss', grid, self.current_epoch)
               
                         while len(_x_hat.shape) > 2:
                             _x_hat = _x_hat[0,...]
@@ -437,22 +435,18 @@ class Recon(pl.LightningModule):
                             _x_adj = _x_adj[0,...]
 
 
-                    myim = torch.tensor(np.stack((np.abs(_x_hat), np.angle(_x_hat)), axis=0))[:, None, ...] 
-                    grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
-                    self.logger.experiment.add_image('2_train_prediction', grid, self.current_epoch)
-
                     if self.current_epoch == 0:
-                            myim = torch.tensor(np.stack((np.abs(_x_gt), np.angle(_x_gt)), axis=0))[:, None, ...]
-                            grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
-                            self.logger.experiment.add_image('1_ground_truth', grid, 0)
+                            #myim = torch.tensor(np.stack((np.abs(_x_gt), np.angle(_x_gt)), axis=0))[:, None, ...]
+                            #grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
+                            #self.logger.experiment.add_image('1_ground_truth', grid, 0)
 
                             myim = torch.tensor(np.stack((np.abs(_x_adj), np.angle(_x_adj)), axis=0))[:, None, ...]
                             grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
                             self.logger.experiment.add_image('0_input', grid, 0)
 
-                            #myim = torch.tensor(_x_gt_dyn)[:, None, ...] 
-                            #grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
-                            #self.logger.experiment.add_image('5_ground_truth_dyn', grid, self.current_epoch)
+                            myim = torch.tensor(_x_gt_dyn)[:, None, ...] 
+                            grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
+                            self.logger.experiment.add_image('1_ground_truth_dyn', grid, self.current_epoch)
         _reg1 = 0
         _reg2 = 0
         _loss_data = 0
@@ -463,6 +457,7 @@ class Recon(pl.LightningModule):
             pred = x_hat
             gt = imgs
 
+        # if you're doing self-supervised WITH T1_mapping, use the t1-mapping loss, which does take x_hat as input (see line 176)
         if self.hparams.self_supervised and self.hparams.do_t1_mapping:
             loss = self.loss_fun(x_hat, gt) 
             _reg1_prelim = self.reg1
@@ -519,12 +514,12 @@ class Recon(pl.LightningModule):
                 #'8_grad_norm_total': _grad_norm_total
                 #'reg1': self.reg1
                 }
-        if self.current_epoch == self.hparams.num_epochs - 1:
-            np.save("{0}/{1}_version{2}_epoch{3}_loss.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _loss.cpu())
-            np.save("{0}/{1}_version{2}_epoch{3}_nrmse.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _nrmse.cpu())
-            if self.hparams.do_t1_mapping:
-                np.save("{0}/{1}_version{2}_epoch{3}_reg1.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _reg1.cpu())
-                np.save("{0}/{1}_version{2}_epoch{3}_data_consist.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _loss_data.cpu())
+        #if self.current_epoch == self.hparams.num_epochs - 1:
+        #    np.save("{0}/{1}_version{2}_epoch{3}_loss.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _loss.cpu())
+        #    np.save("{0}/{1}_version{2}_epoch{3}_nrmse.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _nrmse.cpu())
+        #    if self.hparams.do_t1_mapping:
+        #        np.save("{0}/{1}_version{2}_epoch{3}_reg1.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _reg1.cpu())
+        #        np.save("{0}/{1}_version{2}_epoch{3}_data_consist.npy".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch), _loss_data.cpu())
         
         if self.logger:
             for key in log_dict.keys():

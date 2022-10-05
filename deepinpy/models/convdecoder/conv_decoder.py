@@ -89,12 +89,15 @@ class conv_model(nn.Module):
             for i,c in enumerate(self.net1):
                 if i+1 in self.layer_inds:
                     f = self.net1[:i+1]
+                    print("------> f(x).shape = ", f(x).shape)
                     intermed_outs.append(f(x))
             intermed_outs = [intermed_outs[i] for i in range(len(intermed_outs)) if self.intermeds[i]]
             intermed_outs = [self.up_sample(io) for io in intermed_outs]
             out1 = torch.cat(intermed_outs+[out1],1)
+            print("------> out1.shape = ", out1.shape)
         self.combinations = copy(out1)
         out2 = self.net2(out1)
+        print("------> out2.shape = ", out2.shape)
         return out2*scale_out
     def up_sample(self,img):
         samp_block = nn.Upsample(size=self.hidden_size[-1], mode=self.upsample_mode)#,align_corners=True)

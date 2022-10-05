@@ -8,7 +8,7 @@
 	"use_sigpy": false,
 	"noncart": false,
 	"stdev": 0.0,
-	"name": "Sub8_brain_VFA_sup_T1reg_R8_review",
+	"name": "Sub8_brain_VFA_sup_T1reg_R8_warmstart_review",
 	"recon": "csdip",
 	"network": "ConvDecoder",
 	"batch_norm": false,
@@ -38,9 +38,11 @@
 	"distributed_training": false,
      "lr_scheduler": -1,
 	"num_spatial_dimensions": 2,
-	"save_every_N_epochs": 1,
+	"save_every_N_epochs": 500,
 	"logdir": "/home/kalina/review/logs_Sub8_raw_R8",
 	"do_t1_mapping": true,
+	"do_warmstart": true,
+	"state_dict_path": "/home/kalina/review/logs_Sub8_raw_R8/Sub8_sli110_brain_VFA_sup_T1reg_R8_review/version_0/Sub8_sli110_brain_VFA_sup_T1reg_R8_review_version0_epoch2000_state_dict.pt",
 	"save_img": true,
 	"dictdir": "/home/kalina/Code/dictionaries"
 }

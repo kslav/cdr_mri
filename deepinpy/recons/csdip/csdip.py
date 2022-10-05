@@ -53,7 +53,10 @@ class CSDIPRecon(Recon):
             # FIXME: error logging
             print('ERROR: invalid network specified')
             sys.exit(-1)
-
+        # self.network gets defined above, so at this point you can do self.network.load_state_dict(torch.load(PATH),strict=False).
+        # Need an if-statement based on a flag that says "yes warmstart"
+        if self.hparams.do_warmstart:
+            self.network.load_state_dict(torch.load(self.hparams.state_dict_path),strict=False)
         self.zseed = None # to be initialized on first batch
         self.A = None # to be initialized on first batch
 
@@ -102,6 +105,9 @@ class CSDIPRecon(Recon):
                 out = out.permute((0, 2, 3, 4, 1))
             else:
                 out = out.permute(0, 2, 3, 1)
+        PATH = "{0}/{1}_version{2}_epoch{3}_state_dict.pt".format(self.hparams.save_img_path, self.hparams.tt_logger_name, self.hparams.tt_logger_version, self.current_epoch)
+        if (self.current_epoch % self.hparams.save_every_N_epochs == 0 or self.current_epoch == self.hparams.num_epochs - 1):
+            torch.save(self.network.state_dict(), PATH)
         return out
 
     def get_metadata(self):

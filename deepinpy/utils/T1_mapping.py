@@ -124,6 +124,8 @@ def dictionary_match(im_data, D, t1_list, sc_list):
     #print("model_out_im.shape = ", model_out_im.shape)
     return scales, i_idx, model_out_im
 
+
+
 #the model, in this case the SPGRE equation that takes in [T1,T2, image_params] and outputs SI
 def my_sim(x,FAs, TR): #img_params = {[FAs],TR,TE}
     print("entered my_sim function...")
