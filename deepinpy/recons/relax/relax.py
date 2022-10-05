@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# RELAX is from Liu et al. 2020. Mag Resn Med (DOI: 10.1002/mrm.28659). 
+# While the original implementation used real-valued, simulated images and trained over many batches, 
+# we modified the U-net model to take in complex-valued images as input and to train iteratively over
+# a single batch in an untrained fashion. 
+
 from deepinpy.forwards import MultiChannelMRI
 from deepinpy.models import UNet
 from deepinpy.recons import Recon

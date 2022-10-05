@@ -9,9 +9,9 @@ The manuscript associated with this work can be at arxiv:xxxx and has been submi
 ## Purpose:
 The purpose of this project is to apply physics-based regulization in training a modified ConvDecoder architecture (G(w))[Darestani et al. 2021. arXiv:2007.02471v3] for accelerated dynamic MRI. 
 
-The proposed regularization term provides an early stopping condition that does not require access to ground truth data. This allows for automated early stoping that yields reconstructed images and corresponding quantitative parameter maps at a high resolution. The cost function for this training is defined in the following figure.
+The proposed regularization term provides an early stopping condition that does not require access to ground truth data. This allows for automated early stoping that yields reconstructed images and corresponding quantitative parameter maps at a high resolution. The proposed pipeline, along with cost function, are defined in the following figure.
 
-<img src="docs/images/costfunction.png" width="500">
+<img src="docs/images/Figure1.tiff" width="500">
 
 ## Installation
 
