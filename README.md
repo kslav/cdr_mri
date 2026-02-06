@@ -15,8 +15,50 @@ The proposed regularization term provides an early stopping condition that does 
 
 ## Installation
 
+### Setting up with pyenv (Recommended)
+
+If you prefer using pyenv to manage Python versions, follow these steps:
+
+1. **Install pyenv** (if not already installed):
+   ```bash
+   # macOS
+   brew install pyenv
+
+   # Linux
+   curl https://pyenv.run | bash
+   ```
+
+2. **Install Python 3.8 or higher**:
+   ```bash
+   pyenv install 3.8.12
+   ```
+
+3. **Set the Python version for this project**:
+   ```bash
+   cd /path/to/cdr_mri
+   pyenv local 3.8.12
+   ```
+
+4. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+5. **Install PyTorch**:
+   ```bash
+   pip install torch>=1.8.0 torchvision
+   ```
+
+6. **Install remaining dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Alternative: Using conda
+
 ```
-conda install -c pytorch pytorch 
+conda install -c pytorch pytorch
 pip install -r requirements.txt
 ```
 
