@@ -13,6 +13,10 @@ The proposed regularization term provides an early stopping condition that does 
 
 <img src="docs/images/Figure1.tiff" width="800">
 
+## Updates
+
+The update_torch branch contains an updated version of the code that uses a newer pytorch version with native complex number handling. The master branch contains the original version of the code that encodes complex number as two channel tensors. 
+
 ## Installation
 
 ```
