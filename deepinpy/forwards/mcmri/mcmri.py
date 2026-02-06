@@ -160,13 +160,85 @@ def maps_adj(cimg, maps):
     return torch.sum(cp.zmul(cp.zconj(maps), cimg), 1, keepdim=False)
 
 def fft_forw(x, ndim=2):
-    return torch.fft(x, signal_ndim=ndim, normalized=True)
+    """
+    Forward FFT supporting both native complex and 2-channel real tensors.
+
+    Args:
+        x: Input tensor - either native complex or shape (..., 2) for 2-channel real
+        ndim: Number of spatial dimensions to transform (2 or 3)
+
+    Returns:
+        FFT of x in same format as input
+    """
+    # Check if native complex tensor
+    if torch.is_complex(x):
+        # Modern API with native complex support
+        if ndim == 2:
+            return torch.fft.fft2(x, norm='ortho')
+        elif ndim == 3:
+            return torch.fft.fftn(x, dim=(-3, -2, -1), norm='ortho')
+        else:
+            return torch.fft.fftn(x, dim=tuple(range(-ndim, 0)), norm='ortho')
+    else:
+        # Legacy 2-channel real format - convert to complex, apply FFT, convert back
+        x_complex = cp.real2ch_to_complex(x)
+        if ndim == 2:
+            result = torch.fft.fft2(x_complex, norm='ortho')
+        elif ndim == 3:
+            result = torch.fft.fftn(x_complex, dim=(-3, -2, -1), norm='ortho')
+        else:
+            result = torch.fft.fftn(x_complex, dim=tuple(range(-ndim, 0)), norm='ortho')
+        return cp.complex_to_real2ch(result)
 
 def fft_adj(x, ndim=2):
-    return torch.ifft(x, signal_ndim=ndim, normalized=True)
+    """
+    Adjoint (inverse) FFT supporting both native complex and 2-channel real tensors.
+
+    Args:
+        x: Input tensor - either native complex or shape (..., 2) for 2-channel real
+        ndim: Number of spatial dimensions to transform (2 or 3)
+
+    Returns:
+        Inverse FFT of x in same format as input
+    """
+    # Check if native complex tensor
+    if torch.is_complex(x):
+        # Modern API with native complex support
+        if ndim == 2:
+            return torch.fft.ifft2(x, norm='ortho')
+        elif ndim == 3:
+            return torch.fft.ifftn(x, dim=(-3, -2, -1), norm='ortho')
+        else:
+            return torch.fft.ifftn(x, dim=tuple(range(-ndim, 0)), norm='ortho')
+    else:
+        # Legacy 2-channel real format - convert to complex, apply IFFT, convert back
+        x_complex = cp.real2ch_to_complex(x)
+        if ndim == 2:
+            result = torch.fft.ifft2(x_complex, norm='ortho')
+        elif ndim == 3:
+            result = torch.fft.ifftn(x_complex, dim=(-3, -2, -1), norm='ortho')
+        else:
+            result = torch.fft.ifftn(x_complex, dim=tuple(range(-ndim, 0)), norm='ortho')
+        return cp.complex_to_real2ch(result)
 
 def mask_forw(y, mask):
-    return y * mask[:,None,...,None]
+    """
+    Apply undersampling mask, supporting both native complex and 2-channel real tensors.
+
+    Args:
+        y: k-space data - either native complex or shape (..., 2) for 2-channel real
+        mask: Binary mask with shape matching spatial dimensions
+
+    Returns:
+        Masked k-space in same format as input
+    """
+    if torch.is_complex(y):
+        # Native complex: mask has shape (batch, ..., spatial dims)
+        # y has shape (batch, coils, ..., spatial dims)
+        return y * mask[:,None,...]
+    else:
+        # Legacy 2-channel real format: need extra dimension for real/imag
+        return y * mask[:,None,...,None]
     
 def sense_forw(img, maps, mask, ndim=2): 
     return mask_forw(fft_forw(maps_forw(img, maps), ndim), mask)

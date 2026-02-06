@@ -444,9 +444,10 @@ class Recon(pl.LightningModule):
                             grid = make_grid(myim, scale_each=True, normalize=True, nrow=8, pad_value=10)
                             self.logger.experiment.add_image('0_input', grid, 0)
 
-                            myim = torch.tensor(_x_gt_dyn)[:, None, ...] 
-                            grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
-                            self.logger.experiment.add_image('1_ground_truth_dyn', grid, self.current_epoch)
+                            if '_x_gt_dyn' in locals():
+                                myim = torch.tensor(_x_gt_dyn)[:, None, ...]
+                                grid = make_grid(myim, scale_each=True, normalize=True, nrow=_d, pad_value=10)
+                                self.logger.experiment.add_image('1_ground_truth_dyn', grid, self.current_epoch)
         _reg1 = 0
         _reg2 = 0
         _loss_data = 0

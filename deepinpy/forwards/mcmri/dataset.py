@@ -52,7 +52,7 @@ class MultiChannelMRIDataset(torch.utils.data.Dataset):
 
     """
 
-    def __init__(self, data_file, stdev=.01, num_data_sets=None, adjoint=True, preload=False, id=None, clear_cache=False, cache_data=False, gen_masks=False, scale_data=False, fully_sampled=False, data_idx=None, inverse_crime=False, noncart=False):
+    def __init__(self, data_file, stdev=.01, num_data_sets=None, adjoint=True, preload=False, id=None, clear_cache=False, cache_data=False, gen_masks=False, scale_data=False, fully_sampled=False, data_idx=None, inverse_crime=False, noncart=False, use_native_complex=False):
 
         self.data_file = data_file
         self.stdev = stdev
@@ -67,6 +67,7 @@ class MultiChannelMRIDataset(torch.utils.data.Dataset):
         self.scale_data = scale_data
         self.inverse_crime = inverse_crime
         self.noncart = noncart
+        self.use_native_complex = use_native_complex
 
         if self.data_idx is not None:
             self.num_data_sets = 1
@@ -114,12 +115,23 @@ class MultiChannelMRIDataset(torch.utils.data.Dataset):
             masks = masks.squeeze(0)
             out = out.squeeze(0)
 
-        data = {
-                'imgs': cp.c2r(imgs).astype(np.float32),
-                'maps': cp.c2r(maps).astype(np.float32),
-                'masks': masks.astype(np.float32),
-                'out': cp.c2r(out).astype(np.float32)
-                }
+        if self.use_native_complex:
+            # Return native complex torch tensors
+            import torch
+            data = {
+                    'imgs': torch.from_numpy(imgs.astype(np.complex64)),
+                    'maps': torch.from_numpy(maps.astype(np.complex64)),
+                    'masks': torch.from_numpy(masks.astype(np.float32)),
+                    'out': torch.from_numpy(out.astype(np.complex64))
+                    }
+        else:
+            # Legacy 2-channel real format
+            data = {
+                    'imgs': cp.c2r(imgs).astype(np.float32),
+                    'maps': cp.c2r(maps).astype(np.float32),
+                    'masks': masks.astype(np.float32),
+                    'out': cp.c2r(out).astype(np.float32)
+                    }
 
         return idx, data
 
@@ -179,11 +191,11 @@ class MultiChannelMRIDataset(torch.utils.data.Dataset):
 
 def load_data(idx, data_file, gen_masks=False):
     with h5py.File(data_file, 'r') as F:
-        imgs = np.array(F['imgs'][idx,...], dtype=np.complex)
-        maps = np.array(F['maps'][idx,...], dtype=np.complex)
-        masks = np.array(F['masks'][idx,...], dtype=np.float)
+        imgs = np.array(F['imgs'][idx,...], dtype=np.complex64)
+        maps = np.array(F['maps'][idx,...], dtype=np.complex64)
+        masks = np.array(F['masks'][idx,...], dtype=np.float32)
         if 'noise' in F.keys():
-            noise = np.array(F['noise'][idx,...], dtype=np.complex)
+            noise = np.array(F['noise'][idx,...], dtype=np.complex64)
         else:
             noise = None
 
@@ -196,12 +208,12 @@ def load_data(idx, data_file, gen_masks=False):
 
 def load_data_ksp(idx, data_file, gen_masks=False):
     with h5py.File(data_file, 'r') as F:
-        imgs = np.array(F['imgs'][idx,...], dtype=np.complex)
-        maps = np.array(F['maps'][idx,...], dtype=np.complex)
-        ksp = np.array(F['ksp'][idx,...], dtype=np.complex)
-        masks = np.array(F['masks'][idx,...], dtype=np.float)
+        imgs = np.array(F['imgs'][idx,...], dtype=np.complex64)
+        maps = np.array(F['maps'][idx,...], dtype=np.complex64)
+        ksp = np.array(F['ksp'][idx,...], dtype=np.complex64)
+        masks = np.array(F['masks'][idx,...], dtype=np.float32)
         if 'noise' in F.keys():
-            noise = np.array(F['noise'][idx,...], dtype=np.float)
+            noise = np.array(F['noise'][idx,...], dtype=np.float32)
         else:
             noise = None
 
@@ -215,10 +227,10 @@ def load_data_ksp(idx, data_file, gen_masks=False):
 
 def load_data_cached(data_file):
     with h5py.File(data_file, 'r') as F:
-        imgs = np.array(F['imgs'], dtype=np.complex)
-        maps = np.array(F['maps'], dtype=np.complex)
-        masks = np.array(F['masks'], dtype=np.float)
-        out = np.array(F['out'], dtype=np.complex)
+        imgs = np.array(F['imgs'], dtype=np.complex64)
+        maps = np.array(F['maps'], dtype=np.complex64)
+        masks = np.array(F['masks'], dtype=np.float32)
+        out = np.array(F['out'], dtype=np.complex64)
     return imgs, maps, masks, out
 
 
